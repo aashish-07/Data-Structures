@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <climits>
 using namespace std;
 
 class node
@@ -35,6 +36,27 @@ node *insertInBST(node *root, int data)
         root->right = insertInBST(root->right, data);
     }
     return root;
+}
+
+bool search(node *root, int data)
+{
+    if (root == NULL)
+    {
+        return false;
+    }
+    if (root->data == data)
+    {
+        return true;
+    }
+    //Recursively search in left and right subtree
+    if (data <= root->data)
+    {
+        return search(root->left, data);
+    }
+    else
+    {
+        return search(root->right, data);
+    }
 }
 
 node *build()
@@ -100,76 +122,55 @@ void inorder(node *root)
     inorder(root->right);
 }
 
-bool search(Node *root, int key)
-{
-    //base case
-    if (root == NULL)
-    {
-        return false;
-    }
-    if (root->data == key)
-    {
-        return true;
-    }
-    if (key < root->data)
-    {
-        return search(root->left, key);
-    }
-    return search(root->right, key);
-}
-
-Node *removeNode(Node *root, int key)
+node *deleteInBST(node *root, int data)
 {
     if (root == NULL)
     {
         return NULL;
     }
-    if (root->data == key)
+    else if (data < root->data)
     {
-        //This is the node to be deleted
-        //3 cases - 0 , 1, 2 children
-        //1. leaf node
-        if (root->left == NULL and root->right == NULL)
+        root->left = deleteInBST(root->left, data);
+        return root;
+    }
+    else if (data == root->data)
+    {
+        //Found the node to delete 3 Cases
+        //1. Node with 0 children - Leaf Node
+        if (root->left == NULL && root->right == NULL)
         {
             delete root;
             return NULL;
         }
-        else if (root->left != NULL and root->right == NULL)
+        //2. Case Only 1 child
+        if (root->left != NULL && root->right == NULL)
         {
-            Node *temp = root->left;
+            node *temp = root->left;
             delete root;
             return temp;
         }
-        else if (root->right != NULL and root->left == NULL)
+        if (root->right != NULL && root->left == NULL)
         {
-            Node *temp = root->right;
+            node *temp = root->right;
             delete root;
             return temp;
         }
-        else
+        //3. Case 2 children
+        node *replace = root->right;
+        //Find the inorder successor from right subtree
+        while (replace->left != NULL)
         {
-            //find inorder successor
-            Node *temp = root->right;
-            while (temp->left != NULL)
-            {
-                temp = temp->left;
-            }
-            //copy the temp data to root
-            root->data = temp->data;
-            //rec delete the temp->data from right subtree
-            root->right = removeNode(root->right, temp->data);
-            return root;
+            replace = replace->left;
         }
-    }
-    else if (key < root->data)
-    {
-        root->left = removeNode(root->left, key);
+        root->data = replace->data;
+        root->right = deleteInBST(root->right, replace->data);
+        return root;
     }
     else
     {
-        root->right = removeNode(root->right, key);
+        root->right = deleteInBST(root->right, data);
+        return root;
     }
-    return root;
 }
 
 bool isBST(node *root, int minV = INT_MIN, int maxV = INT_MAX)
@@ -190,7 +191,15 @@ int main()
     node *root = build();
     inorder(root);
     cout << endl;
-    bfs(root);
+
+    if (isBST(root))
+    {
+        cout << "Yes";
+    }
+    else
+    {
+        cout << "Not a BST!";
+    }
 
     return 0;
 }
