@@ -1,7 +1,7 @@
 #include <iostream>
 #include <list>
 using namespace std;
-// Graph Algorithms
+// Graph Algorithms - Adjacenecy List
 class Graph
 {
     int V;
